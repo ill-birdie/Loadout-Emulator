@@ -13,9 +13,12 @@ def execute(full_cmd: str) -> None:
     full_cmd = full_cmd.strip().split(' ')
     cmd = full_cmd[0]
     match cmd:
-        case 'add'|'insert'|'place'|'touch':
+        case 'add'|'place'|'touch':
             args = full_cmd[1:]
             call_modify(args, option='add')
+        case 'insert'|'ins':
+            args = full_cmd[1:]
+            call_modify(args, option='insert')
         case 'remove'|'rm':
             args = full_cmd[1:]
             call_modify(args, option='remove')
