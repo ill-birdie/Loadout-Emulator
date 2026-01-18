@@ -37,7 +37,7 @@ def execute(full_cmd: str) -> None:
     print(loadout)
 
 
-def call_modify(args: List[str], *, option='add') -> None:
+def parse_args(args: List[str]) -> list:
     idx = None
     unit = None
     if len(args) >= 1:
@@ -48,24 +48,37 @@ def call_modify(args: List[str], *, option='add') -> None:
                     unit = ' '.join(args[:-1])
             else:
                 print(f'Invalid index: {idx} (must be in range 1-{len(loadout.lineup)})')
-                return
         except ValueError:
             unit = ' '.join(args)
-    exception = ''
+    return [idx, unit]
+
+
+def call_modify(args: List[str], *, option='add') -> None:
+    idx, unit = parse_args(args)
+
+    exception = None
     if option == 'add':
         full_loadout = loadout.num_units() == len(loadout.lineup)
-        if full_loadout and (idx is None) and (unit is not None):
-            exception = 'attempted to append unit to full loadout'
-        elif (idx is None) and (unit is None):
-            exception = 'missing index, unit'
-        elif (idx is not None) and (unit is None):
-            exception = 'missing unit'
+        match (full_loadout, idx, unit):
+            case (True, _, _):
+                exception = 'attempted to append unit to full loadout'
+
+            case (_, None, None):
+                exception = 'missing index, unit'
+
+            case (_, idx, None) if idx is not None:
+                exception = 'missing unit'
+
+            case _:
+                exception = None
     elif option == 'remove':
         if (idx is None) and (unit not in loadout.lineup):
             exception = 'unit does not exist in lineup'
-    if len(exception) != 0:
+
+    if exception is not None:
         print(f'Command "{option}" failed: {exception}')
         return
+
     loadout.modify(idx, unit, mode=option)
 
 
