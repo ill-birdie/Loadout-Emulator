@@ -57,6 +57,9 @@ def call_modify(args: List[str], *, option='add') -> None:
             exception = 'missing index, unit'
         elif (idx is not None) and (unit is None):
             exception = 'missing unit'
+    elif option == 'remove':
+        if (idx is None) and (unit not in loadout.lineup):
+            exception = 'unit does not exist in lineup'
     if len(exception) != 0:
         print(f'Command "{option}" failed: {exception}')
         return

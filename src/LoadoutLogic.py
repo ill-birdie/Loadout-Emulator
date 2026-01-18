@@ -73,7 +73,7 @@ class Loadout:
         return -1
 
     def update_longest(self) -> None:
-        units = [u for u in self._lineup if u is not None]
+        units = self.units()
         new_longest = 0
         if len(units) > 0:
             new_longest = len(max(units, key=len))
@@ -81,20 +81,27 @@ class Loadout:
 
     def modify(self, idx, unit, *, mode='add') -> None:
         assert mode in {'add', 'remove'}, 'Invalid mode for method "modify()"'
+        assert idx is None or 1 <= idx <= len(self.lineup), f'Invalid index: {idx} (must be in range 1-{len(self.lineup)})'
         new_value = None
         if mode == 'add':
             if idx is None:
                 idx = self.next_empty_idx()
+            if self._lineup[idx - 1] is not None:
+                # try to move all the stuff around; if there's no extra space, return
+                print("unit already exists here so i'll try to shift it")
+                pass
             if unit is not None:
                 new_value = unit
             else:
                 return
         elif mode == 'remove':
             if idx is None:
-                if unit is not None and unit in self._lineup:
-                    idx = self.index(unit)
+                if unit is not None:
+                    if unit in self._lineup:
+                        idx = self.index(unit)
+                    else:
+                        return
                 else:
                     idx = self.last_unit_idx()
-        if 1 <= idx <= len(self.lineup):
-            self._lineup[idx - 1] = new_value
-            self.update_longest()
+        self._lineup[idx - 1] = new_value
+        self.update_longest()
