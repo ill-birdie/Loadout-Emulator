@@ -34,14 +34,7 @@ def execute(full_cmd: str) -> None:
     print(loadout)
 
 
-def idx_exception(idx: int) -> str:
-    return f'Invalid index: {idx} (must be in range 1-{len(loadout.lineup)})'
-
-
 def call_modify(args: List[str], *, option='add') -> None:
-    if option == 'add' and loadout.num_units() == len(loadout.lineup):
-        print('Loadout is full')
-        return
     idx = None
     unit = None
     if len(args) >= 1:
@@ -51,18 +44,21 @@ def call_modify(args: List[str], *, option='add') -> None:
                 if len(args) > 1:
                     unit = ' '.join(args[:-1])
             else:
-                print(idx_exception(idx))
+                print(f'Invalid index: {idx} (must be in range 1-{len(loadout.lineup)})')
                 return
         except ValueError:
             unit = ' '.join(args)
     exception = ''
     if option == 'add':
-        if idx is None and unit is None:
-            exception += 'index, unit'
-        elif idx is not None and unit is None:
-            exception += 'unit'
+        full_loadout = loadout.num_units() == len(loadout.lineup)
+        if full_loadout and (idx is None) and (unit is not None):
+            exception = 'attempted to append unit to full loadout'
+        elif (idx is None) and (unit is None):
+            exception = 'missing index, unit'
+        elif (idx is not None) and (unit is None):
+            exception = 'missing unit'
     if len(exception) != 0:
-        print(f'Command "{option}" missing arguments: {exception}')
+        print(f'Command "{option}" failed: {exception}')
         return
     loadout.modify(idx, unit, mode=option)
 
