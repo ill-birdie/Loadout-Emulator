@@ -18,6 +18,7 @@ def execute(full_cmd: str) -> None:
             call_add(args)
         case 'remove'|'rm':
             args = full_cmd[1:]
+            call_remove(args)
         case 'squish':
             loadout.squish()
         case 'clear':
@@ -31,7 +32,11 @@ def execute(full_cmd: str) -> None:
     print(loadout)
 
 
-def call_add(args: List[str]):
+def invalid_index_message(idx: int, max_idx: int) -> str:
+    return f'Invalid index: {idx} (must be 1-{max_idx})'
+
+
+def call_add(args: List[str]) -> None:
     loadout_len = len(loadout.lineup)
     try:
         idx = int(args[-1])
@@ -39,13 +44,42 @@ def call_add(args: List[str]):
             unit = ' '.join(args[:-1])
             loadout.modify(idx, unit, mode='add')
         else:
-            print(f"Invalid index: {idx} (must be 1-{loadout_len})")
+            print(invalid_index_message(idx, loadout_len))
     except IndexError:
         print("Missing argument: unit")
     except ValueError:
         idx = None
         unit = ' '.join(args)
         loadout.modify(idx, unit, mode='add')
+
+
+def call_remove(args: List[str]) -> None:
+    loadout_len = len(loadout.lineup)
+    has_valid_idx = False
+    has_unit = False
+    if len(args) >= 1:
+        try:
+            idx = int(args[-1])
+            # Command has index
+            if 1 <= idx <= loadout_len:
+                # Command has valid index
+                has_valid_idx = True
+                if len(args) > 1:
+                    # Command has valid index and unit
+                    has_unit = True
+            else:
+                print(invalid_index_message(idx, loadout_len))
+                return
+        except ValueError:
+            # Command only has unit
+            has_unit = True
+    idx = None
+    unit = None
+    if has_valid_idx:
+        idx = int(args[-1])
+    if has_unit:
+        unit = ' '.join(args)
+    loadout.modify(idx, unit, mode='remove')
 
 
 loadout = Loadout()

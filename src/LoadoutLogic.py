@@ -70,12 +70,12 @@ class Loadout:
         if mode == 'add':
             if idx is None:
                 idx = self.next_empty_idx()
-            if 1 <= idx <= 10:
-                new_value = unit
+            new_value = unit
+            if 1 <= idx <= len(self.lineup):
                 self._lineup[idx - 1] = new_value
         elif mode == 'remove':
             if idx is None:
                 idx = self.last_unit_idx()
-            if 1 <= idx <= 10:
+            if 1 <= idx <= len(self.lineup):
                 self._lineup[idx - 1] = None
         self.update_longest()
