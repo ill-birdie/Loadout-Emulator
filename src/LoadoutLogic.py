@@ -36,6 +36,16 @@ class Loadout:
     def lineup(self):
         return self._lineup
 
+    def clear(self):
+        self._lineup = [None] * 10
+        self.update_longest()
+
+    def squish(self):
+        units = [u for u in self._lineup if u is not None]
+        self.clear()
+        for u in units:
+            self.add(None, u)
+
     def next_empty(self) -> int:
         try:
             return self._lineup.index(None) + 1
