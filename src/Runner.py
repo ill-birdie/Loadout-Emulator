@@ -57,6 +57,8 @@ def call_modify(args: List[str], *, option='add') -> None:
     idx, unit = parse_args(args)
 
     exception = None
+
+
     if option == 'add':
         full_loadout = loadout.num_units() == len(loadout.lineup)
         match (full_loadout, idx, unit):
@@ -71,14 +73,28 @@ def call_modify(args: List[str], *, option='add') -> None:
 
             case _:
                 exception = None
+
+
+    elif option == 'insert':
+        missing = []
+        if idx is None:
+            missing.append('index')
+
+        if unit is None:
+            missing.append('unit')
+
+        if len(missing) > 0:
+            exception = f'missing {', '.join(missing)}'
+
+
     elif option == 'remove':
         if (idx is None) and (unit not in loadout.lineup):
             exception = 'unit does not exist in lineup'
 
+
     if exception is not None:
         print(f'Command "{option}" failed: {exception}')
         return
-
     loadout.modify(idx, unit, mode=option)
 
 

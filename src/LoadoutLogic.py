@@ -86,17 +86,23 @@ class Loadout:
             next_open = self.next_empty_idx()
             if idx is None:
                 idx = next_open
+
             if (unit is not None) and (next_open != -1):
                 self._lineup.pop(next_open - 1)
                 self._lineup.insert(idx - 1, unit)
+
+
         elif mode == 'insert':
             if idx is not None:
                 self._lineup.pop(idx - 1)
                 self._lineup.insert(idx - 1, unit)
+
+
         elif mode == 'remove':
             match (idx, unit):
                 case (None, None):
                     idx = self.last_unit_idx()
+
                 case (None, unit) if unit is not None:
                     if unit in self._lineup:
                         idx = self.index(unit)
