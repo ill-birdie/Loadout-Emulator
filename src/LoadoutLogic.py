@@ -94,13 +94,13 @@ class Loadout:
                 self._lineup.pop(idx - 1)
                 self._lineup.insert(idx - 1, unit)
         elif mode == 'remove':
-            if idx is None:
-                if unit is not None:
+            match (idx, unit):
+                case (None, None):
+                    idx = self.last_unit_idx()
+                case (None, unit) if unit is not None:
                     if unit in self._lineup:
                         idx = self.index(unit)
                     else:
                         return
-                else:
-                    idx = self.last_unit_idx()
             self._lineup[idx - 1] = None
         self.update_longest()
