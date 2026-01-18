@@ -33,18 +33,28 @@ class Loadout:
         return result
 
     @property
-    def lineup(self):
+    def lineup(self) -> List[str]:
         return self._lineup
 
-    def clear(self):
+    def units(self) -> List[str]:
+        return [unit for unit in self._lineup if unit is not None]
+
+    def num_units(self) -> int:
+        return len(self.units())
+
+    def clear(self) -> None:
         self._lineup = [None] * 10
         self.update_longest()
 
-    def squish(self):
-        units = [u for u in self._lineup if u is not None]
+    def fill(self) -> None:
+        for i in range(1, 11):
+            self.modify(None, str(i), mode='add')
+        self.update_longest()
+
+    def squish(self) -> None:
         self.clear()
-        for u in units:
-            self.modify(None, u, mode='add')
+        for unit in self.units():
+            self.modify(None, unit, mode='add')
 
     def next_empty_idx(self) -> int:
         try:
@@ -67,15 +77,17 @@ class Loadout:
 
     def modify(self, idx, unit, *, mode='add') -> None:
         assert mode in {'add', 'remove'}, 'Invalid mode for method "modify()"'
+        new_value = None
         if mode == 'add':
             if idx is None:
                 idx = self.next_empty_idx()
-            new_value = unit
-            if 1 <= idx <= len(self.lineup):
-                self._lineup[idx - 1] = new_value
+            if unit is not None:
+                new_value = unit
+            else:
+                return
         elif mode == 'remove':
             if idx is None:
                 idx = self.last_unit_idx()
-            if 1 <= idx <= len(self.lineup):
-                self._lineup[idx - 1] = None
-        self.update_longest()
+        if 1 <= idx <= len(self.lineup):
+            self._lineup[idx - 1] = new_value
+            self.update_longest()
