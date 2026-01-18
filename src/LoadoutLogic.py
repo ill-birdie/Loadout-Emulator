@@ -37,7 +37,10 @@ class Loadout:
         return self._lineup
 
     def next_empty(self) -> int:
-        return self._lineup.index(None) + 1
+        try:
+            return self._lineup.index(None) + 1
+        except ValueError:
+            return -1
 
     def update_longest(self) -> None:
         units = [u for u in self._lineup if u is not None]
@@ -47,8 +50,9 @@ class Loadout:
         if new_longest > self._longest_len:
             self._longest_len = new_longest
 
-    def add(self, idx, unit: str):
+    def add(self, idx, unit: str) -> None:
         if idx is None:
             idx = self.next_empty()
-        self._lineup[idx - 1] = unit
-        self.update_longest()
+        if 1 <= idx <= 10:
+            self._lineup[idx - 1] = unit
+            self.update_longest()
