@@ -52,9 +52,13 @@ class Loadout:
         self.update_longest()
 
     def squish(self) -> None:
+        units = self.units()
         self.clear()
-        for unit in self.units():
+        for unit in units:
             self.modify(None, unit, mode='add')
+
+    def index(self, unit: str) -> int:
+        return self._lineup.index(unit) + 1
 
     def next_empty_idx(self) -> int:
         try:
@@ -87,7 +91,10 @@ class Loadout:
                 return
         elif mode == 'remove':
             if idx is None:
-                idx = self.last_unit_idx()
+                if unit is not None and unit in self._lineup:
+                    idx = self.index(unit)
+                else:
+                    idx = self.last_unit_idx()
         if 1 <= idx <= len(self.lineup):
             self._lineup[idx - 1] = new_value
             self.update_longest()

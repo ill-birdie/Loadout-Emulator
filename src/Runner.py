@@ -40,9 +40,8 @@ def idx_exception(idx: int) -> str:
 
 def call_modify(args: List[str], *, option='add') -> None:
     if option == 'add' and loadout.num_units() == len(loadout.lineup):
-        print('Loadout is full: command "add" missing index')
+        print('Loadout is full')
         return
-
     idx = None
     unit = None
     if len(args) >= 1:
