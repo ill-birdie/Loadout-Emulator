@@ -94,69 +94,66 @@ class Loadout:
         if idx is None:
             idx = next_open
 
-        result = ''
+        error_msg = ''
         match (unit, has_next):
             case (None, _):
-                result = 'missing unit'
+                error_msg = 'missing unit'
+
+            case (_, _) if not self.valid_index(idx):
+                error_msg = f'invalid index ({idx})'
 
             case (_, False):
-                result = 'no space to append unit'
+                error_msg = 'no space to append unit'
 
             case _:
                 self._lineup.pop(next_open - 1)
                 self._lineup.insert(idx - 1, unit)
 
         self.update_longest()
-        return result
+        return error_msg
 
 
     def insert(self, idx, unit) -> str:
-        result = ''
+        error_msg = ''
         match (idx, unit):
             case (None, None):
-                result = 'missing index, unit'
+                error_msg = 'missing index, unit'
 
             case (None, _):
-                result = 'missing index'
+                error_msg = 'missing index'
 
             case (_, None):
-                result = 'missing unit'
+                error_msg = 'missing unit'
+
+            case (_, _) if not self.valid_index(idx):
+                error_msg = f'invalid index: {idx}'
 
             case _:
                 self._lineup.pop(idx - 1)
                 self._lineup.insert(idx - 1, unit)
 
         self.update_longest()
-        return result
+        return error_msg
 
-    # def modify(self, idx, unit, *, mode='add') -> None:
-    #     assert mode in {'add', 'insert', 'remove'}, f'Invalid mode for method "modify()": {mode}'
-    #     assert idx is None or 1 <= idx <= len(self._lineup), f'Invalid index: {idx} (must be in range 1-{len(self._lineup)})'
-    #     if mode == 'add':
-    #         next_open = self.next_empty_idx()
-    #         if idx is None:
-    #             idx = next_open
-    #
-    #         if (unit is not None) and (next_open != -1):
-    #             self._lineup.pop(next_open - 1)
-    #             self._lineup.insert(idx - 1, unit)
-    #
-    #
-    #     elif mode == 'insert':
-    #         if idx is not None:
-    #             self._lineup.pop(idx - 1)
-    #             self._lineup.insert(idx - 1, unit)
-    #
-    #
-    #     elif mode == 'remove':
-    #         match (idx, unit):
-    #             case (None, None):
-    #                 idx = self.last_unit_idx()
-    #
-    #             case (None, unit) if unit is not None:
-    #                 if unit in self._lineup:
-    #                     idx = self.index(unit)
-    #                 else:
-    #                     return
-    #         self._lineup[idx - 1] = None
-    #     self.update_longest()
+
+    def remove(self, idx, unit) -> str:
+        error_msg = ''
+        valid_unit = unit in self.units()
+        match (idx, unit, valid_unit):
+            case (None, None, _):
+                idx = self.last_unit_idx()
+
+            case (None, unit, True) if unit is not None:
+                idx = self.index(unit)
+
+            case (_, _, False) if unit is not None:
+                error_msg = f'{unit} does not exist in loadout'
+
+            case (idx, unit, _) if (idx is not None) and (unit is not None):
+                error_msg = f'too many arguments: "{idx}" and "{unit}"'
+
+        if not len(error_msg) > 1 and self.valid_index(idx):
+            self._lineup[idx - 1] = None
+            self.update_longest()
+
+        return error_msg
