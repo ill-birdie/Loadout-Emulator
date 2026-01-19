@@ -13,7 +13,7 @@ def execute(full_cmd: str) -> None:
     cmd, opts, args = parse_cmd(full_cmd)
     match cmd:
         case 'add'|'place'|'touch':
-            call_modify(args, option='add')
+            call_append(args)
         case 'insert'|'ins':
             call_modify(args, option='insert')
         case 'remove'|'rm':
@@ -54,8 +54,26 @@ def parse_cmd(s: str) -> List:
     return [command, options, arguments]
 
 
+def call_append(args: List) -> None:
+    idx = None
+    unit = None
+
+    if args is not None:
+        try:
+            idx = int(args[-1])
+            unit = ' '.join(args[:-1])
+
+        except ValueError:
+            unit = ' '.join(args)
+
+        except IndexError:
+            pass
+
+    loadout.append(idx, unit)
+
+
 def call_modify(args: List[str], *, option='add') -> None:
-    idx, unit = parse_cmd(args)
+    idx, unit = args[-1], args[:-1]
 
     exception = None
 

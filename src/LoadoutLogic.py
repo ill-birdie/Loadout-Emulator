@@ -36,11 +36,13 @@ class Loadout:
     def lineup(self) -> List[str]:
         return self._lineup
 
+
     def units(self) -> List[str]:
         return [unit for unit in self._lineup if unit is not None]
 
     def num_units(self) -> int:
         return len(self.units())
+
 
     def clear(self) -> None:
         self._lineup = [None] * 10
@@ -57,6 +59,7 @@ class Loadout:
         for unit in units:
             self.modify(None, unit, mode='add')
 
+
     def index(self, unit: str) -> int:
         return self._lineup.index(unit) + 1
 
@@ -72,6 +75,7 @@ class Loadout:
                 return len(self._lineup) - idx
         return -1
 
+
     def update_longest(self) -> None:
         units = self.units()
         new_longest = 0
@@ -79,34 +83,47 @@ class Loadout:
             new_longest = len(max(units, key=len))
         self._longest_len = new_longest
 
-    def modify(self, idx, unit, *, mode='add') -> None:
-        assert mode in {'add', 'insert', 'remove'}, f'Invalid mode for method "modify()": {mode}'
-        assert idx is None or 1 <= idx <= len(self._lineup), f'Invalid index: {idx} (must be in range 1-{len(self._lineup)})'
-        if mode == 'add':
-            next_open = self.next_empty_idx()
-            if idx is None:
-                idx = next_open
 
-            if (unit is not None) and (next_open != -1):
-                self._lineup.pop(next_open - 1)
-                self._lineup.insert(idx - 1, unit)
+    def append(self, idx, unit) -> None:
+        next_open = self.next_empty_idx()
 
+        if idx is None:
+            idx = next_open
 
-        elif mode == 'insert':
-            if idx is not None:
-                self._lineup.pop(idx - 1)
-                self._lineup.insert(idx - 1, unit)
+        if (unit is not None) and (next_open != -1):
+            self._lineup.pop(next_open - 1)
+            self._lineup.insert(idx - 1, unit)
 
-
-        elif mode == 'remove':
-            match (idx, unit):
-                case (None, None):
-                    idx = self.last_unit_idx()
-
-                case (None, unit) if unit is not None:
-                    if unit in self._lineup:
-                        idx = self.index(unit)
-                    else:
-                        return
-            self._lineup[idx - 1] = None
         self.update_longest()
+
+    # def modify(self, idx, unit, *, mode='add') -> None:
+    #     assert mode in {'add', 'insert', 'remove'}, f'Invalid mode for method "modify()": {mode}'
+    #     assert idx is None or 1 <= idx <= len(self._lineup), f'Invalid index: {idx} (must be in range 1-{len(self._lineup)})'
+    #     if mode == 'add':
+    #         next_open = self.next_empty_idx()
+    #         if idx is None:
+    #             idx = next_open
+    #
+    #         if (unit is not None) and (next_open != -1):
+    #             self._lineup.pop(next_open - 1)
+    #             self._lineup.insert(idx - 1, unit)
+    #
+    #
+    #     elif mode == 'insert':
+    #         if idx is not None:
+    #             self._lineup.pop(idx - 1)
+    #             self._lineup.insert(idx - 1, unit)
+    #
+    #
+    #     elif mode == 'remove':
+    #         match (idx, unit):
+    #             case (None, None):
+    #                 idx = self.last_unit_idx()
+    #
+    #             case (None, unit) if unit is not None:
+    #                 if unit in self._lineup:
+    #                     idx = self.index(unit)
+    #                 else:
+    #                     return
+    #         self._lineup[idx - 1] = None
+    #     self.update_longest()
