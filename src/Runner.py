@@ -1,5 +1,5 @@
+from typing import List
 from src.LoadoutLogic import Loadout
-from typing import List, Dict
 
 
 def run() -> None:
@@ -17,7 +17,7 @@ def execute(full_cmd: str) -> None:
         case 'insert'|'ins':
             call_modify(args, mode='insert')
         case 'remove'|'rm':
-            call_modify_old(args, option='remove')
+            call_modify(args, mode='remove')
         case 'fill':
             loadout.fill()
         case 'squish':
@@ -69,9 +69,9 @@ def parse_args_modify(args: List) -> List:
     return [index, unit_name]
 
 
-def display_error(error: str) -> None:
+def display_error(cmd: str, error: str) -> None:
     if len(error) > 0:
-        print(error)
+        print(f'Command "{cmd}" failed: {error}')
 
 
 def call_modify(args: List, *, mode='append') -> None:
@@ -80,55 +80,14 @@ def call_modify(args: List, *, mode='append') -> None:
     e = ''
     if mode == 'append':
         e = loadout.append(idx, unit)
+
     elif mode == 'insert':
         e = loadout.insert(idx, unit)
 
-    display_error(e)
+    elif mode == 'remove':
+        e = loadout.remove(idx, unit)
 
-
-def call_modify_old(args: List[str], *, option='add') -> None:
-    idx, unit = args[-1], args[:-1]
-
-    exception = None
-
-
-    if option == 'add':
-        full_loadout = loadout.num_units() == len(loadout.lineup)
-        match (full_loadout, idx, unit):
-            case (True, _, _):
-                exception = 'attempted to append unit to full loadout'
-
-            case (_, None, None):
-                exception = 'missing index, unit'
-
-            case (_, idx, None) if idx is not None:
-                exception = 'missing unit'
-
-            case _:
-                exception = None
-
-
-    elif option == 'insert':
-        missing = []
-        if idx is None:
-            missing.append('index')
-
-        if unit is None:
-            missing.append('unit')
-
-        if len(missing) > 0:
-            exception = f'missing {', '.join(missing)}'
-
-
-    elif option == 'remove':
-        if (idx is None) and (unit not in loadout.lineup):
-            exception = 'unit does not exist in lineup'
-
-
-    if exception is not None:
-        print(f'Command "{option}" failed: {exception}')
-        return
-    loadout.modify(idx, unit, mode=option)
+    display_error(mode, e)
 
 
 loadout = Loadout()
