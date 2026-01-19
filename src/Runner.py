@@ -12,12 +12,12 @@ def run() -> None:
 def execute(full_cmd: str) -> None:
     cmd, opts, args = parse_cmd(full_cmd)
     match cmd:
-        case 'add'|'place'|'touch':
-            call_append(args)
+        case 'add'|'append'|'place'|'touch':
+            call_modify(args, mode='append')
         case 'insert'|'ins':
-            call_modify(args, option='insert')
+            call_modify(args, mode='insert')
         case 'remove'|'rm':
-            call_modify(args, option='remove')
+            call_modify_old(args, option='remove')
         case 'fill':
             loadout.fill()
         case 'squish':
@@ -69,14 +69,24 @@ def parse_args_modify(args: List) -> List:
     return [index, unit_name]
 
 
-def call_append(args: List) -> None:
+def display_error(error: str) -> None:
+    if len(error) > 0:
+        print(error)
+
+
+def call_modify(args: List, *, mode='append') -> None:
     idx, unit = parse_args_modify(args)
-    result = loadout.append(idx, unit)
-    if len(result) > 0:
-        print(result)
+
+    e = ''
+    if mode == 'append':
+        e = loadout.append(idx, unit)
+    elif mode == 'insert':
+        e = loadout.insert(idx, unit)
+
+    display_error(e)
 
 
-def call_modify(args: List[str], *, option='add') -> None:
+def call_modify_old(args: List[str], *, option='add') -> None:
     idx, unit = args[-1], args[:-1]
 
     exception = None

@@ -109,6 +109,26 @@ class Loadout:
         self.update_longest()
         return result
 
+
+    def insert(self, idx, unit) -> str:
+        result = ''
+        match (idx, unit):
+            case (None, None):
+                result = 'missing index, unit'
+
+            case (None, _):
+                result = 'missing index'
+
+            case (_, None):
+                result = 'missing unit'
+
+            case _:
+                self._lineup.pop(idx - 1)
+                self._lineup.insert(idx - 1, unit)
+
+        self.update_longest()
+        return result
+
     # def modify(self, idx, unit, *, mode='add') -> None:
     #     assert mode in {'add', 'insert', 'remove'}, f'Invalid mode for method "modify()": {mode}'
     #     assert idx is None or 1 <= idx <= len(self._lineup), f'Invalid index: {idx} (must be in range 1-{len(self._lineup)})'
