@@ -54,37 +54,26 @@ def parse_cmd(s: str) -> List:
     return [command, options, arguments]
 
 
-def call_append(args: List) -> None:
-    idx = None
-    unit = None
+def parse_args_modify(args: List) -> List:
+    index = None
+    unit_name = None
 
     if args is not None:
         try:
-            idx = int(args[-1])
+            index = int(args[-1])
             if len(args) > 1:
-                unit = ' '.join(args[:-1])
+                unit_name = ' '.join(args[:-1])
 
         except ValueError:
-            unit = ' '.join(args)
+            unit_name = ' '.join(args)
+    return [index, unit_name]
 
-    full_loadout = loadout.num_units() == len(loadout.lineup)
-    exception = None
-    match (full_loadout, idx, unit):
-        case (True, _, _):
-            exception = 'attempted to append unit to full loadout'
 
-        case (_, None, None):
-            exception = 'missing index, unit'
-
-        case (_, idx, None) if idx is not None:
-            exception = 'missing unit'
-        case _:
-            exception = None
-
-    if exception is not None:
-        print(f'Command "append" failed: {exception}')
-    else:
-        loadout.append(idx, unit)
+def call_append(args: List) -> None:
+    idx, unit = parse_args_modify(args)
+    result = loadout.append(idx, unit)
+    if len(result) > 0:
+        print(result)
 
 
 def call_modify(args: List[str], *, option='add') -> None:

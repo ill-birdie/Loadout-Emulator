@@ -75,6 +75,9 @@ class Loadout:
                 return len(self._lineup) - idx
         return -1
 
+    def valid_index(self, idx: int) -> bool:
+        return 1 <= idx <= len(self._lineup)
+
 
     def update_longest(self) -> None:
         units = self.units()
@@ -84,17 +87,27 @@ class Loadout:
         self._longest_len = new_longest
 
 
-    def append(self, idx, unit) -> None:
+    def append(self, idx, unit) -> str:
         next_open = self.next_empty_idx()
+        has_next = (next_open != -1)
 
         if idx is None:
             idx = next_open
 
-        if (unit is not None) and (next_open != -1):
-            self._lineup.pop(next_open - 1)
-            self._lineup.insert(idx - 1, unit)
+        result = ''
+        match (unit, has_next):
+            case (None, _):
+                result = 'missing unit'
+
+            case (_, False):
+                result = 'no space to append unit'
+
+            case _:
+                self._lineup.pop(next_open - 1)
+                self._lineup.insert(idx - 1, unit)
 
         self.update_longest()
+        return result
 
     # def modify(self, idx, unit, *, mode='add') -> None:
     #     assert mode in {'add', 'insert', 'remove'}, f'Invalid mode for method "modify()": {mode}'
