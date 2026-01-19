@@ -50,14 +50,14 @@ class Loadout:
 
     def fill(self) -> None:
         for i in range(1, 11):
-            self.modify(None, str(i), mode='add')
+            self.append(None, str(i))
         self.update_longest()
 
     def squish(self) -> None:
         units = self.units()
         self.clear()
         for unit in units:
-            self.modify(None, unit, mode='add')
+            self.append(None, unit)
 
 
     def index(self, unit: str) -> int:

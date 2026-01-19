@@ -61,15 +61,30 @@ def call_append(args: List) -> None:
     if args is not None:
         try:
             idx = int(args[-1])
-            unit = ' '.join(args[:-1])
+            if len(args) > 1:
+                unit = ' '.join(args[:-1])
 
         except ValueError:
             unit = ' '.join(args)
 
-        except IndexError:
-            pass
+    full_loadout = loadout.num_units() == len(loadout.lineup)
+    exception = None
+    match (full_loadout, idx, unit):
+        case (True, _, _):
+            exception = 'attempted to append unit to full loadout'
 
-    loadout.append(idx, unit)
+        case (_, None, None):
+            exception = 'missing index, unit'
+
+        case (_, idx, None) if idx is not None:
+            exception = 'missing unit'
+        case _:
+            exception = None
+
+    if exception is not None:
+        print(f'Command "append" failed: {exception}')
+    else:
+        loadout.append(idx, unit)
 
 
 def call_modify(args: List[str], *, option='add') -> None:
