@@ -1,5 +1,5 @@
 from src.LoadoutLogic import Loadout
-from typing import List
+from typing import List, Dict
 
 
 def run() -> None:
@@ -10,17 +10,13 @@ def run() -> None:
 
 
 def execute(full_cmd: str) -> None:
-    full_cmd = full_cmd.strip().split(' ')
-    cmd = full_cmd[0]
+    cmd, opts, args = parse_cmd(full_cmd)
     match cmd:
         case 'add'|'place'|'touch':
-            args = full_cmd[1:]
             call_modify(args, option='add')
         case 'insert'|'ins':
-            args = full_cmd[1:]
             call_modify(args, option='insert')
         case 'remove'|'rm':
-            args = full_cmd[1:]
             call_modify(args, option='remove')
         case 'fill':
             loadout.fill()
@@ -37,24 +33,29 @@ def execute(full_cmd: str) -> None:
     print(loadout)
 
 
-def parse_args(args: List[str]) -> list:
-    idx = None
-    unit = None
-    if len(args) >= 1:
-        try:
-            idx = int(args[-1])
-            if 1 <= idx <= len(loadout.lineup):
-                if len(args) > 1:
-                    unit = ' '.join(args[:-1])
-            else:
-                print(f'Invalid index: {idx} (must be in range 1-{len(loadout.lineup)})')
-        except ValueError:
-            unit = ' '.join(args)
-    return [idx, unit]
+def parse_cmd(s: str) -> List:
+    s = s.strip().split(' ')
+
+    command = None
+    options = None
+    arguments = None
+
+    try:
+        command = s[0]
+        second_word = s[1]
+        if second_word[0] == '-':
+            options = list(second_word[1:])
+            arguments = s[2:]
+        else:
+            arguments = s[1:]
+    except IndexError:
+        pass
+
+    return [command, options, arguments]
 
 
 def call_modify(args: List[str], *, option='add') -> None:
-    idx, unit = parse_args(args)
+    idx, unit = parse_cmd(args)
 
     exception = None
 
